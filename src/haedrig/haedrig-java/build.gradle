@@ -14,8 +14,7 @@ buildscript {
 [compileJava,compileTestJava,javadoc]*.options*.encoding = "UTF-8"
 
 dependencies {
-  compile project(':healthtree-api')
-  compile project(':healthtree-email')
+  compile project(':haedrig-api')
   compile "org.hibernate:hibernate-core:$hibernateVersion"
   compile "org.hibernate:hibernate-c3p0:$hibernateVersion"
   compile "org.springframework:spring-context:$springVersion"

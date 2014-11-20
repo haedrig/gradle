@@ -1,11 +1,36 @@
+import org.gradle.api.plugins.jetty.internal.JettyPluginWebAppContext
+
+def SERVER_ROOT = new File(project(':').projectDir.parentFile, 'conf/jetty')
+
 apply plugin: 'war'
+apply plugin: 'jetty'
+
+clean {
+  delete 'logs'
+}
 
 dependencies {
-  compile project(':healthtree-api')
+  compile project(':haedrig-api')
   compile "org.springframework:spring-context:$springVersion"
   compile "org.springframework:spring-web:$springVersion"
+  compile "org.springframework:spring-orm:$springVersion"
+  compile "org.freemarker:freemarker:2.3.20"
+  compile "org.apache.struts.xwork:xwork-core:$strutsVersion"
+  compile "org.apache.struts:struts2-core:$strutsVersion"
+  compile "ognl:ognl:3.0.8"
+  compile "org.apache.struts:struts2-spring-plugin:$strutsVersion"
+  compile "org.apache.struts:struts2-json-plugin:$strutsVersion"
+  compile "commons-io:commons-io:2.4"
+  compile "commons-logging:commons-logging:1.1.3"
+  compile "commons-fileupload:commons-fileupload:1.2.1"
   compile "javax.servlet:javax.servlet-api:$javaxServletApiVersion"
+  compile "javax.servlet.jsp:jsp-api:2.2.1-b03"
+  compile "jstl:jstl:1.2"
+  compile "net.sf.json-lib:json-lib:$jsonVersion:jdk13"
+  compile "org.jivesoftware.smack:smack:1.0:smackx"
+  compile "org.jivesoftware.smack:smack:1.0"
   compile "log4j:log4j:1.2.17"
+  compile "xom:xom:1.0"
 }
 
 compileJava {
@@ -24,3 +49,22 @@ repositories{
 }
 
 [compileJava,compileTestJava,javadoc]*.options*.encoding = "UTF-8"
+
+
+jettyRun {
+  httpPort = 80
+}
+
+jettyRun.doFirst {
+  def shell = new GroovyShell(JettyPluginWebAppContext.class.classLoader, new Binding([jettyRun: jettyRun]))
+  
+  def context = shell.evaluate(new File(SERVER_ROOT, 'jetty-context.groovy'))
+
+  context.baseResource.setResources([
+    project.webAppDir.path
+  ] as String[])
+
+  jettyRun.webAppConfig = context
+  jettyRun.webDefaultXml = new File(SERVER_ROOT, 'jetty-webdefault.xml')
+}
+
