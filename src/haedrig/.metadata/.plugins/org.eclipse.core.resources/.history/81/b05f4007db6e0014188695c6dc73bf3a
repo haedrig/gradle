@@ -1,0 +1,82 @@
+<%@ taglib prefix="s" uri="/struts-tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%
+	String path = request.getContextPath();
+	String port = request.getServerPort() == 80 ? "" : ":"
+			+ request.getServerPort();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + port + path + "/";
+	String basePathOrg=basePath+"org/";
+	String basePathOrgIndex=basePath+"org/index/";
+	String basePathOrgUser=basePath+"org/user/";
+%>
+<c:set value="<%=basePath%>" var="ctx" />
+<c:set value="<%=basePathOrg%>" var="ctxL" />
+<c:set value="<%=basePathOrgIndex%>" var="ctxIndex" />
+<c:set value="http://libs.linkedlove.com/plugins/js/bootstrap/" var="btJs" />
+<c:set value="http://libs.linkedlove.com/plugins/js/jquery/" var="jqJs" />
+<c:set value="http://libs.linkedlove.com/plugins/css/jquery/" var="jqCss" />
+<!-- BEGIN GLOBAL MANDATORY STYLES -->
+<link
+	href="${btJs}assets/global/plugins/font-awesome/css/font-awesome.min.css"
+	rel="stylesheet" type="text/css" />
+<link
+	href="${btJs}assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
+	rel="stylesheet" type="text/css" />
+<link href="${btJs}assets/global/plugins/bootstrap/css/bootstrap.min.css"
+	rel="stylesheet" type="text/css" />
+<link href="${btJs}assets/global/plugins/uniform/css/uniform.default.css"
+	rel="stylesheet" type="text/css" />
+<link
+	href="${btJs}assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
+	rel="stylesheet" type="text/css" />
+<!-- END GLOBAL MANDATORY STYLES -->
+<!-- BEGIN THEME STYLES -->
+<link href="${btJs}assets/global/css/components.css" rel="stylesheet"
+	type="text/css" />
+<link href="${btJs}assets/global/css/plugins.css" rel="stylesheet"
+	type="text/css" />
+<link href="${btJs}assets/admin/layout/css/layout.css" rel="stylesheet"
+	type="text/css" />
+<link href="${btJs}assets/admin/layout/css/themes/default.css"
+	rel="stylesheet" type="text/css" id="style_color" />
+<link href="${btJs}assets/admin/layout/css/custom.css" rel="stylesheet"
+	type="text/css" />
+<!-- END THEME STYLES -->
+<!-- BEGIN CORE PLUGINS -->
+<!--[if lt IE 9]>
+<script src="${btJs}assets/global/plugins/respond.min.js"></script>
+<script src="${btJs}assets/global/plugins/excanvas.min.js"></script> 
+<![endif]-->
+<script src="${btJs}assets/global/plugins/jquery-1.11.0.min.js"
+	type="text/javascript"></script>
+<script src="${btJs}assets/global/plugins/jquery-migrate-1.2.1.min.js"
+	type="text/javascript"></script>
+<!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+<script
+	src="${btJs}assets/global/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js"
+	type="text/javascript"></script>
+<script src="${btJs}assets/global/plugins/bootstrap/js/bootstrap.min.js"
+	type="text/javascript"></script>
+<script
+	src="${btJs}assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"
+	type="text/javascript"></script>
+<script
+	src="${btJs}assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js"
+	type="text/javascript"></script>
+<script src="${btJs}assets/global/plugins/jquery.blockui.min.js"
+	type="text/javascript"></script>
+<script src="${btJs}assets/global/plugins/jquery.cokie.min.js"
+	type="text/javascript"></script>
+<script src="${btJs}assets/global/plugins/uniform/jquery.uniform.min.js"
+	type="text/javascript"></script>
+<script
+	src="${btJs}assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js"
+	type="text/javascript"></script>
+<script
+	src="${btJs}assets/admin/pages/scripts/org.js"
+	type="text/javascript"></script>
+<!-- END CORE PLUGINS -->
+<link rel="shortcut icon" href="favicon.ico"/>

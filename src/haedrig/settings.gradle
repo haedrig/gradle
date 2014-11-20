@@ -1,0 +1,23 @@
+
+def PROJECT = project(':').projectDir
+
+def PROJECTS = [PROJECT] as Set
+
+def filter = {file ->
+	file.isDirectory() && 
+  file.name.charAt(0) != '.' && 
+  file.name != 'scripts' && 
+  file.name != 'logs'
+} as FileFilter
+
+def projectDirList = []
+
+PROJECTS.each {
+	projectDirList.addAll it.listFiles(filter)
+}
+
+include(projectDirList*.name as String[])
+
+projectDirList.each { dir ->
+	project(":$dir.name").projectDir = dir
+}

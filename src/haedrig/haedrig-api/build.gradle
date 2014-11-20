@@ -1,0 +1,15 @@
+
+dependencies {
+  compile "org.hibernate:hibernate-core:4.3.6.Final"
+}
+
+compileJava {
+  if (!System.properties['java.version'].contains('1.7')) {
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
+    options.bootClasspath = files(
+      new File(System.env.JAVA_HOME, 'jre/lib/rt.jar'), 
+      new File(System.env.JAVA_HOME, 'jre/lib/jce.jar')
+    ).asPath
+  }
+}

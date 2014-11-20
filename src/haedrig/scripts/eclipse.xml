@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="eclipse" default="import" basedir=".">
+  <property environment="env"/>
+  <target name="import">
+    <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy">
+      <classpath>
+        <fileset dir="${env.GRADLE_HOME}" includes="lib/groovy-all-*.jar"/>
+      </classpath>
+    </taskdef>
+    
+    <property name="PRGDIR" value="${env.PRGDIR}"/>
+    
+    <groovy>
+      import org.eclipse.core.resources.IResource
+      import org.eclipse.core.resources.IWorkspaceRunnable
+      import org.eclipse.core.runtime.Path
+      import org.eclipse.core.runtime.Platform
+      
+      def PROJECT = new File(properties.PRGDIR)
+
+      def filter = {file ->
+        file.isDirectory() &amp;&amp; 
+        file.name.charAt(0) != '.' &amp;&amp; 
+        file.name != 'server' &amp;&amp; 
+        file.name != 'scripts'
+      } as FileFilter
+
+      def projectDirList = [], projectDescriptionList = []
+      
+      [PROJECT].each {
+        projectDirList.addAll(it.listFiles(filter))
+      }
+      
+      def plugin = Platform.getBundle("org.eclipse.core.resources").loadClass("org.eclipse.core.resources.ResourcesPlugin")
+      def workspace = plugin.getWorkspace()
+
+      projectDirList.each { dir ->
+        projectDescriptionList.add workspace.loadProjectDescription(new Path(new File(dir, '.project').absolutePath))
+      }
+
+      def root = workspace.root
+
+      def runnable = { monitor ->
+          projectDescriptionList.each { description ->
+              def project = root.getProject(description.name)
+              project.create(description, monitor)
+              project.open(IResource.NONE, monitor)
+          }
+      } as IWorkspaceRunnable
+
+      workspace.run(runnable, workspace.ruleFactory.modifyRule(root), IResource.NONE, null)
+    </groovy>
+  </target>
+</project>

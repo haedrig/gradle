@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
+    "http://struts.apache.org/dtds/struts-2.1.7.dtd">
+<struts>
+	<!-- 配置为开发模式 -->
+	<constant name="struts.devMode" value="false" />
+	<!-- 配置扩展名为action -->
+	<constant name="struts.action.extension" value="action" />
+	<!-- 配置主题 -->
+	<constant name="struts.ui.theme" value="simple" />
+	<!-- 配置上传文件大小此处默认为20M -->
+	<constant name="struts.multipart.maxSize" value="2097152" />
+
+	<!-- 国际化编码 -->
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<!-- 定位视图资源的根路径。默认值为/WEB-INF/content <constant value="/WEB-INF/templates" 
+		name="struts.convention.result.path" /> -->
+	<!-- 指定convention扫描以xxx结尾的包 -->
+	<constant value="action" name="struts.convention.package.locators" />
+	<!-- 是否将Action类转换成小写 -->
+	<constant value="false" name="struts.convention.package.lowercase" />
+
+	<!-- 是否将actionName分割,去掉action部分,以大写字母作为分割 -->
+	<constant name="struts.convention.action.name.separator"
+		value="_" />
+	<!-- 浏览器是否缓存静态内容 ，开发阶段最好关闭 -->
+	<constant name="struts.serve.static.browserCache" value="false" />
+	<!-- 当struts的配置文件修改后,系统是否自动重新加载该文件,默认值为false(生产环境下使用),开发阶段最好打开 -->
+	<constant name="struts.configuration.xml.reload" value="true" />
+	<!-- 配置使用Spring管理Action -->
+	<constant name="struts.objectFactory" value="spring" />
+	<!-- 让struts2始终先考虑spring的自动装箱 -->
+	<constant name="struts.objectFactory.spring.autoWire.alwaysRespect"
+		value="true" />
+	<!-- 设置默认的父包 <constant value="MAIN" name="struts.convention.default.parent.package" 
+		/> <package name="MAIN" extends="struts-default" namespace="/"> </package> -->
+
+	<package name="org" namespace="/org" extends="json-default">
+
+		<action name="*Page_*" class="{2}Action" method="{1}Page">
+			<result name="success">/WEB-INF/jsp/{1}.jsp</result>
+		</action>
+
+		<action name="*_*" class="{2}Action" method="{1}">
+			<result type="json">
+				<param name="root">result</param>
+			</result>
+		</action>
+
+	</package>
+
+	<package name="orgIndex" namespace="/org/index" extends="json-default">
+		<interceptors>
+			<interceptor name="login"
+				class="com.linkedlove.org.interceptor.LoginInterceptor"></interceptor>
+			<interceptor name="xsss"
+				class="com.linkedlove.org.interceptor.XSSSafeInterceptor"></interceptor>
+			<interceptor name="exception"
+				class="com.linkedlove.org.interceptor.ExceptionInterceptor"></interceptor>
+			<interceptor-stack name="mydefault">
+				<interceptor-ref name="xsss"></interceptor-ref>
+				<interceptor-ref name="exception"></interceptor-ref>
+				<interceptor-ref name="login"></interceptor-ref>
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="mydefault"></default-interceptor-ref>
+		
+		<global-results>
+			<result name="login" type="redirectAction">../loginPage_login.action</result>
+		</global-results>
+
+		<action name="*Page_*" class="{2}Action" method="{1}Page">
+			<result name="success">/WEB-INF/jsp/index/{1}.jsp</result>
+		</action>
+
+		<action name="*_*" class="{2}Action" method="{1}">
+			<result type="json">
+				<param name="root">result</param>
+			</result>
+		</action>
+
+	</package>
+
+</struts>

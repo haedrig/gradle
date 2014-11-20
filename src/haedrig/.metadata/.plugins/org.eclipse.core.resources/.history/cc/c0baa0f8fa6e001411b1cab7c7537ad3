@@ -1,0 +1,36 @@
+package com.healthtree.dao;
+
+import java.util.List;
+
+import com.healthtree.util.xmpp.PushMessage;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+/**
+ * 操作推送消息数据库表和相关功能
+ * 
+ * @author shihan.wang
+ * @version 1.0
+ * @date 2014-10-18
+ *
+ */
+public interface PushMessageDao {
+
+	/**
+	 * 构造推送消息
+	 * 
+	 * @param pushType
+	 * @param objs
+	 * @param recvuid
+	 * @param uuid
+	 * @return
+	 */
+	public PushMessage getPushMessage(PushMessageTypeEnum pushType,
+			String[] objs, Long recvuid, String uuid);
+
+	/**
+	 * 推送xmpp消息
+	 * 
+	 * @param uuid
+	 */
+	public void start(PushMessage o);
+}

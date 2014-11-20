@@ -1,0 +1,200 @@
+!SESSION 2014-06-16 14:33:27.685 -----------------------------------------------
+eclipse.buildId=4.3.2.M20140221-1700
+java.version=1.6.0_10-rc2
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=zh_CN
+Framework arguments:  -product org.eclipse.epp.package.standard.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.standard.product
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.546
+!MESSAGE NLS unused message: line_separator_platform_mac_os_9 in: org.eclipse.core.internal.runtime.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.554
+!MESSAGE NLS unused message: ViewsPreference_currentPresentation in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.554
+!MESSAGE NLS unused message: ViewsPreference_currentPresentationFormat in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.555
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_title in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.555
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_message in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.556
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_yes in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.556
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_no in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.559
+!MESSAGE NLS unused message: ViewsPreference_editors in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.559
+!MESSAGE NLS unused message: ViewsPreference_editors_top in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.560
+!MESSAGE NLS unused message: ViewsPreference_editors_bottom in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.560
+!MESSAGE NLS unused message: ViewsPreference_views in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.560
+!MESSAGE NLS unused message: ViewsPreference_views_top in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.561
+!MESSAGE NLS unused message: ViewsPreference_views_bottom in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.561
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.562
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar_topRight in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.562
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar_topLeft in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.563
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar_left in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.563
+!MESSAGE NLS unused message: ViewsPreference_traditionalTabs in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.563
+!MESSAGE NLS unused message: ViewsPreference_currentTheme in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.564
+!MESSAGE NLS unused message: ViewsPreference_currentThemeDescription in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.564
+!MESSAGE NLS unused message: ViewsPreference_override in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.565
+!MESSAGE NLS unused message: ViewsPreference_currentThemeFormat in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.570
+!MESSAGE NLS unused message: ViewsPreference_restartRequestJobName in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.571
+!MESSAGE NLS unused message: EditorManager_largeDocumentWarning in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:28.802
+!MESSAGE NLS unused message: OpenResourceDialog_openWithButton_toolTip in: org.eclipse.ui.internal.ide.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:50.997
+!MESSAGE NLS unused message: QuickAccess_PressKeyToShowInitialMatches in: org.eclipse.ui.internal.quickaccess.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:51.475
+!MESSAGE NLS unused message: JavaEditorPreferencePage_highlightMatchingBrackets in: org.eclipse.jdt.internal.ui.preferences.PreferencesMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:51.900
+!MESSAGE NLS unused message: SourceAttachmentBlock_filename_label in: org.eclipse.jdt.internal.ui.wizards.NewWizardMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:33:51.901
+!MESSAGE NLS unused message: SourceAttachmentBlock_filename_internal_button in: org.eclipse.jdt.internal.ui.wizards.NewWizardMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:03.084
+!MESSAGE NLS unused message: AntBuildfileExportPage_6 in: org.eclipse.ant.internal.ui.datatransfer.DataTransferMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:08.908
+!MESSAGE NLS unused message: LaunchConfigurationWorkingCopy_6 in: org.eclipse.debug.internal.core.DebugCoreMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:08.909
+!MESSAGE NLS unused message: LaunchConfigurationWorkingCopy_7 in: org.eclipse.debug.internal.core.DebugCoreMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:08.909
+!MESSAGE NLS unused message: LaunchConfigurationWorkingCopy_8 in: org.eclipse.debug.internal.core.DebugCoreMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:08.909
+!MESSAGE NLS unused message: LaunchConfigurationType_0 in: org.eclipse.debug.internal.core.DebugCoreMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:08.910
+!MESSAGE NLS unused message: LaunchConfigurationType_1 in: org.eclipse.debug.internal.core.DebugCoreMessages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:41:09.719
+!MESSAGE NLS unused message: StandardVMType_Standard_VM_not_supported_on_MacOS__1 in: org.eclipse.jdt.internal.launching.LaunchingMessages
+!SESSION 2014-06-16 14:42:38.329 -----------------------------------------------
+eclipse.buildId=4.3.2.M20140221-1700
+java.version=1.6.0_10-rc2
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=zh_CN
+Framework arguments:  -product org.eclipse.epp.package.standard.product
+Command-line arguments:  -os win32 -ws win32 -arch x86 -product org.eclipse.epp.package.standard.product
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.482
+!MESSAGE NLS unused message: line_separator_platform_mac_os_9 in: org.eclipse.core.internal.runtime.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.489
+!MESSAGE NLS unused message: ViewsPreference_currentPresentation in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.489
+!MESSAGE NLS unused message: ViewsPreference_currentPresentationFormat in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.490
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_title in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.490
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_message in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.491
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_yes in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.491
+!MESSAGE NLS unused message: ViewsPreference_presentationConfirm_no in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.493
+!MESSAGE NLS unused message: ViewsPreference_editors in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.494
+!MESSAGE NLS unused message: ViewsPreference_editors_top in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.494
+!MESSAGE NLS unused message: ViewsPreference_editors_bottom in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.495
+!MESSAGE NLS unused message: ViewsPreference_views in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.495
+!MESSAGE NLS unused message: ViewsPreference_views_top in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.496
+!MESSAGE NLS unused message: ViewsPreference_views_bottom in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.496
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.496
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar_topRight in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.497
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar_topLeft in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.497
+!MESSAGE NLS unused message: ViewsPreference_perspectiveBar_left in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.498
+!MESSAGE NLS unused message: ViewsPreference_traditionalTabs in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.498
+!MESSAGE NLS unused message: ViewsPreference_currentTheme in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.499
+!MESSAGE NLS unused message: ViewsPreference_currentThemeDescription in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.499
+!MESSAGE NLS unused message: ViewsPreference_override in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.503
+!MESSAGE NLS unused message: ViewsPreference_currentThemeFormat in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.504
+!MESSAGE NLS unused message: ViewsPreference_restartRequestJobName in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.505
+!MESSAGE NLS unused message: EditorManager_largeDocumentWarning in: org.eclipse.ui.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:39.731
+!MESSAGE NLS unused message: OpenResourceDialog_openWithButton_toolTip in: org.eclipse.ui.internal.ide.messages
+
+!ENTRY org.eclipse.osgi 2 1 2014-06-16 14:42:45.696
+!MESSAGE NLS unused message: QuickAccess_PressKeyToShowInitialMatches in: org.eclipse.ui.internal.quickaccess.messages

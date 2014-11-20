@@ -1,0 +1,8 @@
+rmi.host=127.0.0.1
+rmi.port=8288
+rmi.serverPort=8298
+
+weixin.appid=wxe2221c6cef8b6602
+weixin.appsecrect=566fb03703fccb30470fbc098c1e7686
+
+admin.email=zhenjie.yang@jiu-kang.com

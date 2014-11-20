@@ -1,0 +1,149 @@
+package com.healthtree.util.xmpp;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
+
+@SuppressWarnings("serial")
+@Entity
+@Table(name = "information_tb", catalog = "healthtree")
+public class PushMessage implements java.io.Serializable {
+
+	private Long id;
+	private Long sendtuid;
+	private Long groupid;
+	private Long recvuid;
+	private String json;
+	private Integer type;
+	private Long createtime;
+	private Integer status;
+	private String uuid;
+	private Long time;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getSendtuid() {
+		return sendtuid;
+	}
+
+	public void setSendtuid(Long sendtuid) {
+		this.sendtuid = sendtuid;
+	}
+
+	public Long getGroupid() {
+		return groupid;
+	}
+
+	public void setGroupid(Long groupid) {
+		this.groupid = groupid;
+	}
+
+	public Long getRecvuid() {
+		return recvuid;
+	}
+
+	public void setRecvuid(Long recvuid) {
+		this.recvuid = recvuid;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public Long getCreatetime() {
+		return createtime;
+	}
+
+	public void setCreatetime(Long createtime) {
+		this.createtime = createtime;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	@Override
+	public int hashCode() {
+		if (id != null) {
+			return id.hashCode();
+		}
+		return super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof PushMessage) {
+			PushMessage action = (PushMessage) obj;
+			if (action.id == (this.id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public String getJson() {
+		return json;
+	}
+
+	public void setJson(String json) {
+		this.json = json;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public Long getTime() {
+		return time;
+	}
+
+	public void setTime(Long time) {
+		this.time = time;
+	}
+
+	public PushMessage(Long recvuid, String json, String uuid) {
+		super();
+		this.sendtuid = 1L;
+		this.groupid = 1L;
+		this.recvuid = recvuid;
+		this.json = json;
+		this.type = 0;
+		this.createtime = System.currentTimeMillis();
+		this.status = 0;
+		this.uuid = uuid;
+		this.time = System.currentTimeMillis();
+	}
+
+	public PushMessage() {
+
+	}
+
+}

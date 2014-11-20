@@ -1,0 +1,70 @@
+package com.healthtree.xmpp;
+
+import java.util.List;
+
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Message.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import com.healthtree.util.xmpp.PushMessage;
+
+/**
+ * 消息推送线程 可以通过pushMessageDao.start()启动
+ * 
+ * @author shihan.wang
+ * @version 1.0
+ * @date 2014-10-14
+ */
+@Component
+@Scope(value = "prototype")
+public class PushMessageThread implements Runnable {
+	@Autowired
+	private XmppConnection xmppConnection;
+
+	private String uuid;
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public synchronized void run() {
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		List<PushMessage> list = pushMessageService.findAll(uuid);
+		for (PushMessage pushMessage : list) {
+			if (send(pushMessage)) {
+				pushMessageService.remove(pushMessage.getId());
+			}
+		}
+	}
+
+	public boolean send(PushMessage pushMessage) {
+		try {
+			if (!pushMessage.getRecvuid().equals(1L)) {
+				Message message = new Message(pushMessage.getRecvuid()
+						+ "@linkedlove/jiukang", Type.normal);
+				message.setBody(pushMessage.getJson());
+				xmppConnection.getConnection().sendPacket(message);
+			} else {
+				Message message = new Message("all@broadcast.linkedlove",
+						Type.normal);
+				message.setBody(pushMessage.getJson());
+				xmppConnection.getConnection().sendPacket(message);
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+}

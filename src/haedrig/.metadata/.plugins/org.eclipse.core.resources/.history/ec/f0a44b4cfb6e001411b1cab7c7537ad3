@@ -1,0 +1,125 @@
+package com.healthtree.service.impl;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.healthtree.dao.BpressureDao;
+import com.healthtree.dao.MyLoveDao;
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.dao.UserInfoDao;
+import com.healthtree.dao.UserStatDao;
+import com.healthtree.entity.Bpressure;
+import com.healthtree.entity.MyLove;
+import com.healthtree.entity.PushMessage;
+import com.healthtree.entity.UserInfo;
+import com.healthtree.entity.UserStat;
+import com.healthtree.service.BpressureService;
+import com.healthtree.util.Page;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Service("bpressureService")
+public class BpressureServiceImpl implements BpressureService {
+
+	@Autowired
+	private BpressureDao bpressureDao;
+	@Autowired
+	private MyLoveDao myLoveDao;
+	@Autowired
+	private PushMessageDao pushMessageDao;
+	@Autowired
+	private UserStatDao userStatDao;
+	@Autowired
+	private UserInfoDao userInfoDao;
+
+	public Serializable create(Bpressure bpressure) {
+		Long userId = bpressure.getUserid();
+		List<MyLove> loveMes = myLoveDao.findLoveMeAndRightGt(userId);
+		List<PushMessage> pushMessages = new ArrayList<PushMessage>();
+		String[] objects = new String[] { userId.toString(),
+				JSONObject.fromObject(bpressure).toString() };
+		String uuid = UUID.randomUUID().toString();
+		for (MyLove myLove : loveMes) {
+			Long recvuid = myLove.getUserInfoByUserid().getId();
+			PushMessage pushMessage = pushMessageDao.getPushMessage(
+					PushMessageTypeEnum.MSGID50, objects, recvuid, uuid);
+			pushMessages.add(pushMessage);
+		}
+		PushMessage mePushMessage = pushMessageDao.getPushMessage(
+				PushMessageTypeEnum.MSGID50, objects, userId, uuid);
+		pushMessages.add(mePushMessage);
+		for (PushMessage pushMessage : pushMessages) {
+			pushMessageDao.start(pushMessage);
+		}
+		UserStat userStat = userStatDao.find(userId);
+		UserInfo user = userInfoDao.findByUserId(userId);
+		if (userStat == null) {
+			userStat = new UserStat();
+			userStat.setUserId(bpressure.getUserid());
+			userStat.setLastbph(bpressure.getBpressureH());
+			userStat.setLastbpl(bpressure.getBpressureL());
+			userStat.setLasthr(bpressure.getHeartrate());
+			userStat.setLastTime(bpressure.getTime());
+			userStat.setName(user.getName());
+			userStat.setGender(user.getGender());
+			userStat.setBirthday(user.getBirthday());
+			userStat.setStatus(bpressure.getStatus());
+			userStatDao.save(userStat);
+		} else {
+			userStat.setUserId(bpressure.getUserid());
+			userStat.setLastbph(bpressure.getBpressureH());
+			userStat.setLastbpl(bpressure.getBpressureL());
+			userStat.setLasthr(bpressure.getHeartrate());
+			userStat.setLastTime(bpressure.getTime());
+			userStat.setName(user.getName());
+			userStat.setGender(user.getGender());
+			userStat.setBirthday(user.getBirthday());
+			userStat.setStatus(bpressure.getStatus());
+			userStatDao.update(userStat);
+		}
+		return bpressureDao.save(bpressure);
+	}
+
+	public Page find(Long userid, Integer pageNum, Integer pageSize) {
+		return bpressureDao.find(userid, pageNum, pageSize);
+	}
+
+	public List<Bpressure> findAll(Long userid) {
+		return bpressureDao.findAll(userid);
+	}
+
+	public Bpressure find(Integer bpressure_h, Integer bpressure_l,
+			Integer heart_rate, Long time) {
+		return bpressureDao.find(bpressure_h, bpressure_l, heart_rate, time);
+	}
+
+	public List<Bpressure> findTopSevenBP(Long userId) {
+		return bpressureDao.findTopSevenBP(userId);
+	}
+
+	public Integer findBplMax(Long userId, Long beginTime, Long endTime) {
+		return bpressureDao.findBplMax(userId, beginTime, endTime);
+	}
+
+	public Integer findBphMax(Long userId, Long beginTime, Long endTime) {
+		return bpressureDao.findBphMax(userId, beginTime, endTime);
+	}
+
+	public Integer findBphAvg(Long userId, Long beginTime, Long endTime) {
+		return bpressureDao.findBphAvg(userId, beginTime, endTime);
+	}
+
+	public Integer findBplAvg(Long userId, Long beginTime, Long endTime) {
+		return bpressureDao.findBplAvg(userId, beginTime, endTime);
+	}
+
+	public List<Bpressure> find(Long userId, Long beginTime, Long endTime) {
+		return bpressureDao.find(userId, beginTime, endTime);
+	}
+}

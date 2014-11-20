@@ -1,0 +1,193 @@
+package com.linkedlove.m.member.xmpp;
+
+import java.util.List;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.packet.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.healthtree.entity.MyLove;
+import com.healthtree.entity.UserInfo;
+import com.healthtree.service.MyLoveService;
+import com.healthtree.service.UserInfoService;
+import com.linkedlove.m.member.weixin.token.AccessToken;
+import com.linkedlove.org.weixin.WeixinService;
+
+/**
+ * xmpp消息接受监听器
+ * 
+ * @author shihan.wang
+ * @version 1.0
+ * @date 2014-10-14
+ */
+@Component("xmppChatManagerListener")
+public class XmppChatManagerListener implements ChatManagerListener {
+
+	@Autowired
+	private WeixinService weixinService;
+
+	@Autowired
+	private MyLoveService myLoveService;
+
+	@Autowired
+	private UserInfoService userInfoService;
+
+	private static Logger logger = Logger.getLogger(XmppChatManagerListener.class);
+	private String color = "";
+	private String status = "";
+
+	public void chatCreated(Chat chat, boolean arg1) {
+		chat.addMessageListener(new MessageListener() {
+			public void processMessage(Chat chat, Message msg) {
+				try {
+					logger.info(msg.getBody());
+					JSONObject obj = JSONObject.fromObject(msg.getBody().toString());
+					Integer msgid = obj.getInt("msgid"); 
+					switch (msgid){
+					case 50:
+						pushBpressure(obj);
+						break;
+					case 25:
+						PushMyLoveRequest(obj);
+						break;
+						
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	/**
+	 * 推送关爱人申请
+	 * @param obj
+	 * @throws Exception
+	 */
+	private void PushMyLoveRequest(JSONObject obj) throws Exception{
+		JSONObject bp = new JSONObject();
+		Long auserid =obj.getLong("auserid");
+		Long buserid = obj.getLong("buserid");
+		MyLove myLove = myLoveService.findByUseridAndAckUserid(auserid, buserid);
+		if (myLove.getUserInfoByAckuserid().getWeixinopenid() != null) {
+			bp.put("touser", myLove.getUserInfoByAckuserid().getWeixinopenid());
+			bp.put("template_id","m57ua3E_QsX8z_wCMyzStNQucbllovCE-I5IE7c1Rl4");
+			bp.put("url","https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe2221c6cef8b6602&redirect_uri=http://42.121.97.148/linkedlove-m-member/m/member/loginPage.action&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect");
+			bp.put("topcolor", "#3DB357");
+			JSONObject data = new JSONObject();
+			data.put("first",JSONObject.fromObject("{'value':'您好，您有新的待办任务！','color':'#363636'}"));
+			data.put("keyword1", JSONObject.fromObject("{'value':'"+ myLove.getNameb()+ "申请关爱您。','color':'#363636'}"));
+			data.put("keyword2",JSONObject.fromObject("{'value':'代办','color':'#363636'}"));
+			data.put("remark",JSONObject.fromObject("{'value':'请尽快到恋爱健康中的“家人”页面，点击“新的关爱人”去处理。','color':'#363636'}"));
+			bp.put("data", data);
+			weixinService.sendTemplet(AccessToken.getAccessToken().getToken(), bp.toString());
+		}
+	}
+	/**
+	 * 给所有关爱人以及自己推送血压结果
+	 * @param obj
+	 */
+	private void pushBpressure(JSONObject obj){
+		Long userid = obj.getLong("userid");
+		
+		logger.info(obj.toString());
+		
+		if (!obj.getString("msgid").equals("50")) 
+			return;
+		
+		JSONObject bpressure = JSONObject.fromObject(obj.getString("data"));
+		List<MyLove> lovemes = myLoveService.findLoveMe(userid);
+		
+		genColor(bpressure.getInt("status"));
+			
+		JSONObject data = new JSONObject();
+		data.put("keyword1",JSONObject.fromObject("{'value':'"+ bpressure.getInt("bpressureH")+ "','color':'" + color + "'}"));
+		data.put("keyword2",JSONObject.fromObject("{'value':'"+ bpressure.getInt("bpressureL")+ "','color':'" + color + "'}"));
+		data.put("keyword3",JSONObject.fromObject("{'value':'"+ bpressure.getInt("heartrate")+ "','color':'" + color + "'}"));
+		data.put("keyword4", JSONObject.fromObject("{'value':'"+status+"','color':'"+ color + "'}"));
+
+		JSONObject bp = new JSONObject();
+		bp.put("template_id","hPgqRy6i4Cu6aSI6qiB-F1Qur_Ur2KsSZm5aDia9Uu4");
+		bp.put("url","https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe2221c6cef8b6602&redirect_uri=http://42.121.97.148/linkedlove-m-member/m/member/loginPage.action&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect");
+		bp.put("topcolor", "#3DB357");
+			
+		for (MyLove myLove : lovemes) {
+			UserInfo userinfo = myLove.getUserInfoByUserid();
+			String weixinopenid = userinfo.getWeixinopenid();
+			if (weixinopenid == null || weixinopenid.equals("")) {
+				continue;
+			}
+			bp.remove("touser");
+			bp.put("touser", weixinopenid);
+		
+			data.remove("first");
+			data.put("first", JSONObject.fromObject("{'value':'您好，"+  myLove.getNameb()+ "刚刚测量了血压，结果如下：','color':'"+ color + "'}"));
+			data.remove("remark");
+			data.put("remark", JSONObject.fromObject("{'value':'您好，"+  myLove.getNameb()+ "的此次血压情况为:"+status+"','color':'"+ color + "'}"));
+			bp.remove("data");
+			bp.put("data", data);
+			String token = AccessToken.getAccessToken().getToken();
+			weixinService.sendTemplet(token, bp.toString());
+		}
+			
+		UserInfo self = userInfoService.findByUserId(userid);
+		if (self.getWeixinopenid() != null && !self.getWeixinopenid().equals("")) {
+			bp.remove("touser");
+			bp.put("touser", self.getWeixinopenid());
+				
+			data.remove("first");
+			data.put("first", JSONObject.fromObject("{'value':'您好，"+  self.getName()+ "刚刚测量了血压，结果如下：','color':'"+ color + "'}"));
+			data.remove("remark");
+			data.put("remark", JSONObject.fromObject("{'value':'您好，"+  self.getName()+ "的此次血压情况为:"+status+"','color':'"+ color + "'}"));
+			bp.remove("data");
+			bp.put("data", data);
+			String token = AccessToken.getAccessToken().getToken();
+			weixinService.sendTemplet(token, bp.toString());
+		}
+	}
+	/**
+	 * 根据状态返回颜色和状态文字描述
+	 * @param bpstatus
+	 */
+	private void genColor(int bpstatus) {
+		switch (bpstatus){
+		case -1:
+			status = "血压偏低";
+			color = "#3399FF";
+			break;	
+		case 0 :
+			status = "血压正常";
+			color = "#0A7C25";
+			break;
+		case 1 :
+			status = "理想血压值";
+			color = "#8FC320";
+			break;
+		case 2 :
+			status = "血压偏高";
+			color = "#FFF101";
+			break;
+		case 3 :
+			status = "轻度高血压";
+			color = "#EC6200";
+			break;
+		case 4 :
+			status = "中度高血压";
+			color = "#FFFF00";
+			break;
+		case 5 :
+			status = "严重高血压";
+			color = "#E70012";
+			break;
+		default : 
+			status = "血压正常";
+			color = "#0A7C25";
+			break;
+		}
+	}
+}

@@ -1,0 +1,474 @@
+package com.linkedlove.org.weixin.action;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+import net.sf.json.xml.XMLSerializer;
+
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.util.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Base64Utils;
+
+import com.healthtree.entity.MyLove;
+import com.healthtree.entity.UserInfo;
+import com.healthtree.service.MyLoveService;
+import com.healthtree.service.UserInfoService;
+import com.healthtree.util.HealthtreeUtil;
+import com.linkedlove.m.member.action.BaseAction;
+import com.linkedlove.org.weixin.WeixinMsg;
+import com.linkedlove.org.weixin.WeixinMsgContent;
+import com.linkedlove.org.weixin.WeixinMsgType;
+import com.linkedlove.org.weixin.WeixinService;
+import com.linkedlove.org.weixin.token.AccessToken;
+
+@Controller("weixinAction")
+@Scope(value = "prototype")
+public class WeixinAction extends BaseAction {
+
+	private static final long serialVersionUID = 2768361353540118103L;
+	private static Logger logger = Logger.getLogger(WeixinAction.class);
+	@Autowired
+	private WeixinService weixinService;
+	@Autowired
+	private UserInfoService userInfoService;
+	@Autowired
+	private MyLoveService myLoveService;
+
+	@Value("${weixin.server.help.info}")
+	private String help;
+
+	@Value("${weixin.server.healthtree.path}")
+	private String sendinfo;
+
+	private static String Token = "linkedlovemmemberweixin12345";
+	private String echostr;
+
+	public void weixin() throws Exception {
+		String method = request.getMethod();
+		logger.info("method");
+		if (method.equals("POST")) {
+			message(request, response);
+		} else {
+			connect(request, response);
+		}
+	}
+
+	@Value("${weixin.admin.get_menu}")
+	private String get_menu;
+	@Value("${weixin.admin.del_menu}")
+	private String del_menu;
+	@Value("${weixin.admin.openid}")
+	private String adminOpenId;
+	@Value("${weixin.admin.token}")
+	private String adminToken;
+
+	private void manageMessage(String requestStr, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		XMLSerializer xmlSerializer = new XMLSerializer();
+		JSONObject jsonObject = (JSONObject) xmlSerializer.read(requestStr);
+		logger.info(jsonObject);
+		String msgtype = jsonObject.getString("MsgType");
+		String openid = jsonObject.getString("FromUserName");
+		// {"ToUserName":"gh_b5dadf4b8742","FromUserName":"oRBamuGXBGmoyp_mdrtZLhoupKO4","CreateTime":"1415590279","MsgType":"event","Event":"scancode_push","EventKey":"rselfmenu_0_1","ScanCodeInfo":{"ScanType":"qrcode","ScanResult":"http://www.linkedlove.com/addlover?para=5OSJ9WVpIjoiMDEyMzQ1Njc4OTAxMjM0NTY3ODkiLCJwd2QiOiIzNDQ0NTMiLCJpY2NpZCI6IjAx\nMjM0NTY3ODkwMTIzNCIsInN1YmRpZCI6IjEiLCJhY2NvdW50IjoiMjMzNDRAMTIzLjkeyJpb"}}
+		if (msgtype.equals("text")) {
+			String content = jsonObject.getString("Content");
+			if (content.equals(get_menu)) {
+				get_menu(jsonObject);
+			} else if (content.equals(del_menu)) {
+				del_menu(jsonObject);
+			} else {
+				help(openid);
+			}
+			return;
+		}
+		String event = jsonObject.getString("Event");
+		String eventKey = jsonObject.getString("EventKey");
+		if ("subscribe".equals(event) && "event".equals(msgtype)) {
+			subscribe(jsonObject);
+		} else if ("unsubscribe".equals(event) && "event".equals(msgtype)) {
+			unsubscribe(jsonObject);
+		} else if ("scancode_waitmsg".equals(event) && "event".equals(msgtype)) {
+			String result = jsonObject.getJSONObject("ScanCodeInfo").getString(
+					"ScanResult");
+			if (result.startsWith("http://www.linkedlove.com/addlover?para=")) {
+				int ii = result.indexOf("=");
+				result = result.substring(ii + 1);
+				if (!result.isEmpty()) {
+					try {
+						String char5s = result.substring(0, 5);
+						String char5m = result.substring(5, result.length() - 5);
+						String char5e = result.substring(result.length() - 5);
+						String codemessage = char5e + char5m + char5s;
+						byte[] b = Base64.decode(codemessage);
+						String obj = new String(b, "utf-8");
+						JSONObject code = JSONObject.fromObject(obj);
+						if (eventKey.equals("rselfmenu_0_0")) {
+							bindAccount(code, openid);
+							logger.info("进入扫描绑定账号");
+						} else {
+							addlover(code, openid);
+							logger.info("进入扫描关爱家人");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 微信扫码添加关爱人
+	 * 
+	 * @param code
+	 * @param openid
+	 */
+	private void addlover(JSONObject code, String openid) {
+		logger.info("进入添加关爱");
+		String account = code.getString("account");
+		String pwd = code.getString("pwd");
+		UserInfo user = userInfoService.findByWeiXinCode(openid);
+		UserInfo auser = null;
+		if (account != null && pwd == null) {
+			auser = userInfoService.findByEmail(account);
+			if (auser == null) {
+				logger.info("找不到关爱人");
+				WeixinMsgContent text = new WeixinMsgContent("亲，~~~~(>_<)~~~~ 呜呜 小爱找不到您要关爱的人！！！");
+				WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+				weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+				return;
+			}
+			/**
+			 * 不能对自己添加关爱人
+			 */
+			if (user.getEmail() == account) {
+				logger.info("不能跟自己关爱");
+				WeixinMsgContent text = new WeixinMsgContent("亲，(*^__^*) 嘻嘻……小爱告诉你哦，自己是不能跟自己关爱的。");
+				WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+				weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+				return;
+			}
+
+			MyLove check = myLoveService.findByUseridAndAckUserid(user.getId(),
+					auser.getId());
+			/**
+			 * 查看是否已经添加关爱了
+			 */
+			if (check != null) {
+				logger.info("已经是关爱人");
+				WeixinMsgContent text = new WeixinMsgContent("亲，非常抱歉！！\n这位先生/女士已经是您的关爱人。");
+				WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+				weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+				return;
+			}
+			MyLove mylove = new MyLove(user, auser);
+			logger.info("添加关爱人");
+			myLoveService.create(mylove);
+			logger.info("添加关爱人成功");
+			WeixinMsgContent text = new WeixinMsgContent("亲，恭喜你！！\n小爱已经为您关爱了"+ auser.getName() + "先生/女士,由于您未能提供对方的账号跟密码，需要对方同意后您才能进行关爱。");
+			WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+			weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+			return;
+		} else if (account != null && pwd != null) {
+			pwd = HealthtreeUtil.getMD5Str(pwd);
+			auser = userInfoService.find(account, pwd);
+			if (auser == null) {
+				logger.info("找不到关爱人");
+				WeixinMsgContent text = new WeixinMsgContent("亲，~~~~(>_<)~~~~ 呜呜 小爱找不到您要关爱的人！！！");
+				WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+				weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+				return;
+			}
+			/**
+			 * 不能对自己添加关爱人
+			 */
+			if (user.getEmail().equals(account)) {
+				logger.info("不能跟自己关爱");
+				WeixinMsgContent text = new WeixinMsgContent("亲，(*^__^*) 嘻嘻……小爱告诉你哦，自己是不能跟自己关爱的。");
+				WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+				weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+				return;
+			}
+
+			MyLove check = myLoveService.findByUseridAndAckUserid(user.getId(),
+					auser.getId());
+			/**
+			 * 查看是否已经添加关爱了
+			 */
+			if (check != null) {
+				logger.info("已经是关爱人");
+				WeixinMsgContent text = new WeixinMsgContent("亲，非常抱歉！！\n这位先生/女士已经是您的关爱人。");
+				WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+				weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+				return;
+			}
+			logger.info("添加关爱人");
+			MyLove mylove = new MyLove(user, auser);
+			mylove.setRight(3);
+			myLoveService.create(mylove);
+			check = myLoveService.findByUseridAndAckUserid(auser.getId(),user.getId());
+			/**
+			 * 检查是否已经添加反向关爱
+			 */
+			if (check != null) {
+				return;
+			}
+			MyLove mylove2 = new MyLove(auser, user);
+			mylove2.setRight(3);
+			myLoveService.create(mylove2);
+			logger.info("添加关爱人成功");
+			WeixinMsgContent text = new WeixinMsgContent("亲，恭喜你！！\n小爱已经为您关爱了"+ auser.getName() + "先生/女士。");
+			WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,text);
+			weixinService.sendMsg(AccessToken.getAccessToken().getToken(),weixinMsg);
+			return;
+		}
+	}
+
+	/**
+	 * 微信扫码绑定账号
+	 * 
+	 * @param obj
+	 * @param openid
+	 */
+	private void bindAccount(JSONObject obj, String openid) {
+		String account = obj.getString("account");
+		String pwd = obj.getString("account");
+		UserInfo user = null;
+		if (account != null && pwd == null) {
+			user = userInfoService.findByEmail(account);
+		} else if (account != null && pwd != null) {
+			user = userInfoService.find(account, HealthtreeUtil.getMD5Str(pwd));
+		}
+		UserInfo weixin = userInfoService.findByWeiXinCode(openid);
+		if (weixin != null) {
+			WeixinMsgContent text = new WeixinMsgContent(
+					"亲，非常抱歉！！\n您的微信已经绑定过链爱健康的账号了！！");
+			WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT,
+					text);
+			weixinService.sendMsg(AccessToken.getAccessToken().getToken(),
+					weixinMsg);
+			return;
+		}
+		user.setWeixinopenid(openid);
+		userInfoService.edit(user);
+		WeixinMsgContent text = new WeixinMsgContent(
+				"亲，恭喜你！！\n您的微信已经成功绑定链爱健康的账号了！！");
+		WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT, text);
+		weixinService.sendMsg(AccessToken.getAccessToken().getToken(),
+				weixinMsg);
+	}
+
+	private void help(String openid) {
+		WeixinMsgContent text = new WeixinMsgContent(help);
+		WeixinMsg weixinMsg = new WeixinMsg(openid, WeixinMsgType.TEXT, text);
+		weixinService.sendMsg(AccessToken.getAccessToken().getToken(),
+				weixinMsg);
+		writeToJson();
+	}
+
+	@Value("${weixin.not_bing.content}")
+	private String bingMsg;
+
+	// private void bingMsg(JSONObject jsonObject) {
+	// String touser = jsonObject.getString("FromUserName");
+	// WeixinMsgContent content = new WeixinMsgContent(bingMsg);
+	// WeixinMsg msg = new WeixinMsg(touser, WeixinMsgType.TEXT, content);
+	// weixinService.sendMsg(getToken(), msg);
+	// }
+
+	private void get_menu(JSONObject jsonObject) {
+		String touser = jsonObject.getString("FromUserName");
+		String[] admins = adminOpenId.split("-");
+		int ret = select(admins, touser);
+		if (ret > 0) {
+			String menu = weixinService.getMenu(getToken());
+			WeixinMsgContent content = new WeixinMsgContent("管理员您好,这是目前的菜单:"
+					+ menu);
+			WeixinMsg msg = new WeixinMsg(touser, WeixinMsgType.TEXT, content);
+			weixinService.sendMsg(getToken(), msg);
+		} else {
+			WeixinMsgContent content = new WeixinMsgContent("抱歉,您不是管理员");
+			WeixinMsg msg = new WeixinMsg(touser, WeixinMsgType.TEXT, content);
+			weixinService.sendMsg(getToken(), msg);
+		}
+	}
+
+	private Integer select(String[] admins, String admin) {
+		int ret = 0;
+		for (int i = 0; i < admins.length; i++) {
+			if (admins[i].equals(admin)) {
+				ret++;
+			}
+		}
+		return ret;
+	}
+
+	private void del_menu(JSONObject jsonObject) {
+		String touser = jsonObject.getString("FromUserName");
+		String[] admins = adminOpenId.split("-");
+		int ret = select(admins, touser);
+		if (ret > 0) {
+			weixinService.delMenu(getToken());
+			String menu = weixinService.getMenu();
+			weixinService.createMenu(getToken(), menu);
+			WeixinMsgContent content = new WeixinMsgContent(
+					"管理员您好,菜单已更新,请尽快添加:" + menu);
+			WeixinMsg msg = new WeixinMsg(touser, WeixinMsgType.TEXT, content);
+			weixinService.sendMsg(getToken(), msg);
+		} else {
+			WeixinMsgContent content = new WeixinMsgContent("抱歉,您不是管理员");
+			WeixinMsg msg = new WeixinMsg(touser, WeixinMsgType.TEXT, content);
+			weixinService.sendMsg(getToken(), msg);
+		}
+	}
+
+	private void unsubscribe(JSONObject jsonObject) {
+		String touser = jsonObject.getString("FromUserName");
+		UserInfo userInfo = userInfoService.findByWeiXinCode(touser);
+		userInfo.setWeixinopenid(null);
+		userInfoService.edit(userInfo);
+	}
+
+	@Value("${weixin.subscribe.content}")
+	private String subscribe_content;
+
+	private void subscribe(JSONObject jsonObject) {
+		String touser = jsonObject.getString("FromUserName");
+		WeixinMsgContent content = new WeixinMsgContent(subscribe_content);
+		WeixinMsg msg = new WeixinMsg(touser, WeixinMsgType.TEXT, content);
+		weixinService.sendMsg(getToken(), msg);
+	}
+
+	private void connect(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		logger.info("RemoteAddr: " + request.getRemoteAddr());
+		logger.info("QueryString: " + request.getQueryString());
+		if (!accessing(request, response)) {
+			return;
+		}
+		String echostr = getEchostr();
+		if (echostr != null && !"".equals(echostr)) {
+			response.getWriter().print(echostr);
+		}
+	}
+
+	private boolean accessing(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String signature = request.getParameter("signature");
+		String timestamp = request.getParameter("timestamp");
+		String nonce = request.getParameter("nonce");
+		String echostr = request.getParameter("echostr");
+		if (isEmpty(signature)) {
+			return false;
+		}
+		if (isEmpty(timestamp)) {
+			return false;
+		}
+		if (isEmpty(nonce)) {
+			return false;
+		}
+		if (isEmpty(echostr)) {
+			return false;
+		}
+		String[] ArrTmp = { Token, timestamp, nonce };
+		Arrays.sort(ArrTmp);
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < ArrTmp.length; i++) {
+			sb.append(ArrTmp[i]);
+		}
+		String pwd = Encrypt(sb.toString());
+
+		logger.info("signature:" + signature + "timestamp:" + timestamp
+				+ "nonce:" + nonce + "pwd:" + pwd + "echostr:" + echostr);
+
+		if (trim(pwd).equals(trim(signature))) {
+			this.echostr = echostr;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private String Encrypt(String strSrc) {
+		MessageDigest md = null;
+		String strDes = null;
+
+		byte[] bt = strSrc.getBytes();
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+			md.update(bt);
+			strDes = bytes2Hex(md.digest()); // to HexString
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("Invalid algorithm.");
+			return null;
+		}
+		return strDes;
+	}
+
+	public String bytes2Hex(byte[] bts) {
+		String des = "";
+		String tmp = null;
+		for (int i = 0; i < bts.length; i++) {
+			tmp = (Integer.toHexString(bts[i] & 0xFF));
+			if (tmp.length() == 1) {
+				des += "0";
+			}
+			des += tmp;
+		}
+		return des;
+	}
+
+	public String getEchostr() {
+		return echostr;
+	}
+
+	private void message(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+
+		InputStream is = request.getInputStream();
+		int size = request.getContentLength();
+		byte[] buffer = new byte[size];
+		byte[] xmldataByte = new byte[size];
+		int count = 0;
+		int rbyte = 0;
+		while (count < size) {
+			rbyte = is.read(buffer);
+			for (int i = 0; i < rbyte; i++) {
+				xmldataByte[count + i] = buffer[i];
+			}
+			count += rbyte;
+		}
+		is.close();
+		String requestStr = new String(xmldataByte, "UTF-8");
+		try {
+			manageMessage(requestStr, request, response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public String getToken() {
+		return AccessToken.getAccessToken().getToken();
+	}
+
+	private boolean isEmpty(String str) {
+		return null == str || "".equals(str) ? true : false;
+	}
+
+	private String trim(String str) {
+		return null != str ? str.trim() : str;
+	}
+}

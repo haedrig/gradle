@@ -1,0 +1,76 @@
+package com.linkedlove.m.member.weixin;
+
+/**
+ * 微信对接接口
+ * 
+ * @author shihan.wang
+ *
+ */
+public interface WeixinService {
+
+	/**
+	 * 获取Token
+	 * 
+	 * @param appid
+	 * @param appsecret
+	 * @return
+	 */
+	public String getAccessToken(String appid, String appsecret);
+
+	/**
+	 * 根据Token获得菜单
+	 * 
+	 * @param accessToken
+	 * @return
+	 */
+	public String getMenu(String accessToken);
+
+	/**
+	 * 获取菜单
+	 * 
+	 * @return
+	 */
+	public String getMenu();
+
+	/**
+	 * 创建菜单
+	 * 
+	 * @param accessToken
+	 * @param menu
+	 * @return
+	 */
+	public String createMenu(String accessToken, String menu);
+
+	/**
+	 * 删除菜单
+	 * 
+	 * @param accessToken
+	 * @return
+	 */
+	public String delMenu(String accessToken);
+
+	/**
+	 * 发送消息
+	 * 
+	 * @param accessToken
+	 * @param msg
+	 * @return
+	 */
+	public String sendMsg(String accessToken, WeixinMsg weixinMsg);
+
+	/**
+	 * 获取微信用户基本信息
+	 * 
+	 * @param accessToken
+	 * @param openid
+	 * @return
+	 */
+	public String getUserInfo(String accessToken, String openid);
+
+	/**
+	 * 
+	 * @param accessToken
+	 * @return
+	 */
+	public String sendTemplet(String accessToken, String message);
+}

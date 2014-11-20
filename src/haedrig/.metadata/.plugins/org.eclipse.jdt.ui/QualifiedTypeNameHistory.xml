@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.util.Random"/>
+<fullyQualifiedTypeName name="com.restful.util.Condition"/>
+<fullyQualifiedTypeName name="com.restful.service.UserInfoService"/>
+<fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
+<fullyQualifiedTypeName name="org.springframework.web.servlet.ModelAndView"/>
+<fullyQualifiedTypeName name="com.restful.util.Page"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.packet.Message"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.packet.Message.Type"/>
+</qualifiedTypeNameHistroy>

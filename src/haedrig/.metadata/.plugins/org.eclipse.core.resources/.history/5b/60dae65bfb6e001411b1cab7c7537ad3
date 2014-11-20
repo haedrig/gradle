@@ -1,0 +1,84 @@
+package com.healthtree.service.impl;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.healthtree.dao.HeartRateDao;
+import com.healthtree.dao.MyLoveDao;
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.dao.UserStatDao;
+import com.healthtree.entity.HeartRate;
+import com.healthtree.entity.MyLove;
+import com.healthtree.service.HeartRateService;
+import com.healthtree.util.Page;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Service("heartRateService")
+public class HeartRateServiceImpl implements HeartRateService {
+
+	@Autowired
+	private HeartRateDao heartRateDao;
+	@Autowired
+	private MyLoveDao myLoveDao;
+	@Autowired
+	private PushMessageDao pushMessageDao;
+	@Autowired
+	private UserStatDao userStatDao;
+
+	public Serializable create(HeartRate heartRate) {
+		Long userId = heartRate.getUserid();
+		List<MyLove> loveMes = myLoveDao.findLoveMeAndRightGt(userId);
+		List<PushMessage> pushMessages = new ArrayList<PushMessage>();
+		String[] objects = new String[] { userId.toString(),
+				JSONObject.fromObject(heartRate).toString() };
+		String uuid = UUID.randomUUID().toString();
+		for (MyLove myLove : loveMes) {
+			Long recvuid = myLove.getUserInfoByUserid().getId();
+			PushMessage pushMessage = pushMessageDao.getPushMessage(
+					PushMessageTypeEnum.MSGID51, objects, recvuid, uuid);
+			pushMessages.add(pushMessage);
+		}
+		PushMessage mePushMessage = pushMessageDao.getPushMessage(
+				PushMessageTypeEnum.MSGID51, objects, userId, uuid);
+		pushMessages.add(mePushMessage);
+		for (PushMessage pushMessage : pushMessages) {
+			pushMessageDao.start(pushMessage);
+		}
+		return heartRateDao.save(heartRate);
+	}
+
+	public List<HeartRate> find(Long userid) {
+		return heartRateDao.find(userid);
+	}
+
+	public HeartRate find(Integer heart_rate, Long time) {
+		return heartRateDao.find(heart_rate, time);
+	}
+
+	public List<HeartRate> find(Long userid, Long time_start, Long time_end) {
+		return heartRateDao.find(userid, time_start, time_end);
+	}
+
+	public Page find(Long userid, Integer pageNum, Integer pageSize) {
+		return heartRateDao.find(userid, pageNum, pageSize);
+	}
+
+	public Integer findHrMax(Long userId, Long beginTime, Long endTime) {
+		return heartRateDao.findHrMax(userId, beginTime, endTime);
+	}
+
+	public Integer findHrAvg(Long userId, Long beginTime, Long endTime) {
+		return heartRateDao.findHrAvg(userId, beginTime, endTime);
+	}
+
+	public HeartRate findLast(Long userId) {
+		return heartRateDao.findLast(userId);
+	}
+}

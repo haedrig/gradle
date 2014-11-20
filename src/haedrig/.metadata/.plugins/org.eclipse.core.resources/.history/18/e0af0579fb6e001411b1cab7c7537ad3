@@ -1,0 +1,115 @@
+package com.healthtree.service.impl;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.healthtree.dao.MyLoveDao;
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.dao.UserInfoDao;
+import com.healthtree.entity.MyLove;
+import com.healthtree.entity.PushMessage;
+import com.healthtree.entity.Title;
+import com.healthtree.entity.UserInfo;
+import com.healthtree.service.UserInfoService;
+import com.healthtree.util.Page;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Service("userInfoService")
+public class UserInfoServiceImpl implements UserInfoService {
+
+	@Autowired
+	private UserInfoDao userInfoDao;
+	@Autowired
+	private PushMessageDao pushMessageDao;
+	@Autowired
+	private MyLoveDao myLoveDao;
+
+	public Serializable create(UserInfo userInfo) {
+		return userInfoDao.save(userInfo);
+	}
+
+	public void edit(UserInfo userInfo) {
+		userInfoDao.update(userInfo);
+		userInfoDao.updateVersion(userInfo);
+		Long userId = userInfo.getId();
+		List<MyLove> loveMes = myLoveDao.findLoveMeAndRightGt(userId);
+		List<PushMessage> pushMessages = new ArrayList<PushMessage>();
+		String[] objects = new String[] { userId.toString() };
+		String uuid = UUID.randomUUID().toString();
+		for (MyLove myLove : loveMes) {
+			Long recvuid = myLove.getUserInfoByUserid().getId();
+			PushMessage pushMessage = pushMessageDao.getPushMessage(
+					PushMessageTypeEnum.MSGID100_1, objects, recvuid, uuid);
+			pushMessages.add(pushMessage);
+		}
+		PushMessage mePushMessage = pushMessageDao.getPushMessage(
+				PushMessageTypeEnum.MSGID100_4, objects, userId, uuid);
+		pushMessages.add(mePushMessage);
+		for (PushMessage pushMessage : pushMessages) {
+			pushMessageDao.start(pushMessage);
+		}
+	}
+
+	public UserInfo find(String logid, String pwd) {
+		return userInfoDao.find(logid, pwd);
+	}
+
+	public Serializable create(UserInfo userInfo, UserInfo dUserInfo,
+			Title titlea, Title titleb) {
+		return null;
+	}
+
+	public String findGroupNameByUserId(Long id) {
+		return userInfoDao.findGroupNameByUserId(id);
+	}
+
+	public UserInfo findByTelnum(String telnum) {
+		return userInfoDao.findByTelnum(telnum);
+	}
+
+	public UserInfo findByUserId(Long userid) {
+		return userInfoDao.findByUserId(userid);
+	}
+
+	public Page findAll(Integer pageNum, Integer pageSize) {
+		return userInfoDao.findAll(pageNum, pageSize);
+	}
+
+	public Page findAllDeleted(Integer pageNum, Integer pageSize) {
+		return userInfoDao.findAllDeleted(pageNum, pageSize);
+	}
+
+	public UserInfo findUserValidity(Long userid, String accdoten) {
+		return userInfoDao.findUserValidity(userid, accdoten);
+	}
+
+	public UserInfo findByEmail(String email) {
+		return userInfoDao.findByEmail(email);
+	}
+
+	public UserInfo findByAccountAndName(String account, String name) {
+		return userInfoDao.findByAccountAndName(account, name);
+	}
+
+	public UserInfo findByWeiXinCode(String openid) {
+		return userInfoDao.findByWeiXinCode(openid);
+	}
+
+	public Page findByName(Long groupId, String name, Integer pageNum,
+			Integer pageSize) {
+		return userInfoDao.findByName(groupId, name, pageNum, pageSize);
+	}
+
+	public Page findByName(String name, Integer pageNum, Integer pageSize) {
+		return userInfoDao.findByName(name, pageNum, pageSize);
+	}
+
+	public void remove(UserInfo userInfo) {
+		userInfoDao.delete(userInfo);
+	}
+}

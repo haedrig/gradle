@@ -1,0 +1,19 @@
+package com.healthtree.service;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.healthtree.entity.PushMessage;
+import com.healthtree.entity.Message;
+
+/**
+ * 操作推送消息相关服务
+ * 
+ * @author shihan.wang
+ * @version 1.0
+ * @date 2014-10-18
+ *
+ */
+public interface PushMessageService {
+
+}

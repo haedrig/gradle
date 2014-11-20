@@ -1,0 +1,61 @@
+package com.linkedlove.m.member.weixin.token;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.linkedlove.m.member.xmpp.XmppConnection;
+import com.linkedlove.org.weixin.WeixinServiceImpl;
+
+@Component("tokenThread")
+public class TokenThread implements Runnable, InitializingBean {
+
+	@Value("${weixin.appid}")
+	private String appid;
+	@Value("${weixin.appsecrect}")
+	private String appsecret;
+	@Autowired
+	private WeixinServiceImpl weixinService;
+	@Autowired
+	private XmppConnection xmppConnection;
+
+	private static Logger logger = Logger.getLogger(TokenThread.class);
+
+	public void run() {
+		while (true) {
+			try {
+				try {
+					String access_token = weixinService.getAccessToken(appid,
+							appsecret);
+					logger.info("微信token:" + access_token);
+					AccessToken.getAccessToken().setToken(access_token);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				if (null != AccessToken.getAccessToken()) {
+					Thread.sleep((AccessToken.getAccessToken().getExpiresIn() - 200) * 1000);
+				} else {
+					Thread.sleep(60 * 1000);
+				}
+			} catch (InterruptedException e) {
+				try {
+					Thread.sleep(60 * 1000);
+				} catch (InterruptedException e1) {
+
+				}
+			}
+		}
+	}
+
+	public void afterPropertiesSet() {
+		try {
+			new Thread(this).start();
+			xmppConnection.login();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
+	}
+}

@@ -1,0 +1,29 @@
+package com.healthtree.dao.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.util.xmpp.PushMessage;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Repository("pushMessageDao")
+public class PushMessageDaoImpl extends BaseDAOImpl<PushMessage> implements
+		PushMessageDao {
+
+
+	public PushMessage getPushMessage(PushMessageTypeEnum pushType,
+			String[] objs, Long recvuid, String uuid) {
+		String msgJson = pushType.getMsgJson();
+		for (int i = 0; i < objs.length; i++) {
+			msgJson = msgJson.replaceAll("#" + i, objs[i]);
+		}
+		PushMessage pushMessage = new PushMessage(recvuid, msgJson, uuid);
+		return pushMessage;
+	}
+
+	public void start(PushMessage o) {
+		pushMessageThread.send(o);
+	}
+
+}

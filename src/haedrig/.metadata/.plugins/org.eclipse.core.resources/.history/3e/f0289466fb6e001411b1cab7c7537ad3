@@ -1,0 +1,46 @@
+package com.healthtree.service.impl;
+
+import java.io.Serializable;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.healthtree.dao.PushMessageDao;
+
+@Service("pushMessageService")
+public class PushMessageServiceImpl implements PushMessageService {
+
+	@Autowired
+	private PushMessageDao pushMessageDao;
+	
+	public Serializable create(PushMessage pushMessage) {
+		return pushMessageDao.save(pushMessage);
+	}
+
+	public PushMessage findById(Long id) {
+		return pushMessageDao.get(PushMessage.class, id);
+	}
+
+	public void remove(Long id) {
+		PushMessage pushMessage = pushMessageDao.get(PushMessage.class, id);
+		pushMessageDao.delete(pushMessage);
+	}
+
+	public List<PushMessage> findAllNotPush() {
+		return pushMessageDao.findAllNotPush();
+	}
+
+	public List<PushMessage> findAll(String uuid) {
+		return pushMessageDao.findAll(uuid);
+	}
+
+	public List<Message> findByUserId(Long userid) {
+		return pushMessageDao.findByUserId(userid);
+	}
+
+	public List<Message> find(Long auserid, Long buserid, Long starttime, Integer count) {
+		return pushMessageDao.find(auserid, buserid, starttime, count);
+	}
+
+}

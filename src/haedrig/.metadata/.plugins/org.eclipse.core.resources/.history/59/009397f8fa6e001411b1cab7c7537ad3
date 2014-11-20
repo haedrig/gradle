@@ -1,0 +1,72 @@
+package com.healthtree.dao;
+
+import java.util.List;
+
+import com.healthtree.util.xmpp.PushMessage;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+/**
+ * 操作推送消息数据库表和相关功能
+ * 
+ * @author shihan.wang
+ * @version 1.0
+ * @date 2014-10-18
+ *
+ */
+public interface PushMessageDao {
+
+	/**
+	 * 根据ID查找还未推送的消息
+	 * 
+	 * @return
+	 */
+	public List<PushMessage> findAllNotPush();
+
+	/**
+	 * 根据UUID查找推送消息
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public List<PushMessage> findAll(String uuid);
+
+	/**
+	 * 构造推送消息
+	 * 
+	 * @param pushType
+	 * @param objs
+	 * @param recvuid
+	 * @param uuid
+	 * @return
+	 */
+	public PushMessage getPushMessage(PushMessageTypeEnum pushType,
+			String[] objs, Long recvuid, String uuid);
+
+	/**
+	 * 推送xmpp消息
+	 * 
+	 * @param uuid
+	 */
+	public void start(PushMessage o);
+
+	/**
+	 * 根据userid查找消息推送记录
+	 * 
+	 * @param userid
+	 * @return
+	 */
+	public List<Message> findByUserId(Long userid);
+
+	/**
+	 * 查找聊天记录
+	 * 
+	 * @param auserid
+	 * @param buserid
+	 * @param starttime
+	 * @param count
+	 * @return
+	 */
+	public List<Message> find(Long auserid, Long buserid, Long starttime,
+			Integer count);
+
+}

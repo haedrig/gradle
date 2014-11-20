@@ -1,0 +1,145 @@
+package com.healthtree.service.impl;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.healthtree.dao.MyLoveDao;
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.dao.UserInfoDao;
+import com.healthtree.entity.MyLove;
+import com.healthtree.entity.UserInfo;
+import com.healthtree.service.MyLoveService;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Service("myLoveService")
+public class MyLoveServiceImpl implements MyLoveService {
+
+	@Autowired
+	private MyLoveDao myLoveDao;
+	@Autowired
+	private UserInfoDao userInfoDao;
+	@Autowired
+	private PushMessageDao pushMessageDao;
+	// 用于微信推送的xmpp账号id
+	@Value("${xmpp.weixin_username}")
+	private Long SERVER_USERNAME;
+
+	public void edit(MyLove myLove) {
+		myLoveDao.update(myLove);
+		UserInfo userInfo = myLove.getUserInfoByUserid();
+		UserInfo ackuserInfo = myLove.getUserInfoByAckuserid();
+		userInfoDao.updateILoveVersion(userInfo);
+		userInfoDao.updateLoveMeVersion(ackuserInfo);
+		pushMsg(userInfo, ackuserInfo);
+	}
+
+	public void editMylove(MyLove myLove) {
+		UserInfo meUserInfo = myLove.getUserInfoByUserid();
+		UserInfo ackUserInfo = myLove.getUserInfoByAckuserid();
+		MyLove myLove2 = myLoveDao.findByUseridAndAckUserid(
+				ackUserInfo.getId(), meUserInfo.getId());
+		userInfoDao.updateILoveVersion(meUserInfo);
+		userInfoDao.updateLoveMeVersion(meUserInfo);
+		userInfoDao.updateILoveVersion(ackUserInfo);
+		userInfoDao.updateLoveMeVersion(ackUserInfo);
+		if (myLove2 == null) {
+			myLove2 = new MyLove(ackUserInfo, meUserInfo);
+			myLove2.setRight(2); // right to view health data
+			myLove2.setRight2(0);
+			myLoveDao.save(myLove2);
+		}
+		myLoveDao.update(myLove);
+		pushMsg(meUserInfo, ackUserInfo);
+	}
+
+	public void delete(MyLove myLove) {
+		UserInfo userInfo = myLove.getUserInfoByUserid();
+		UserInfo ackuserInfo = myLove.getUserInfoByAckuserid();
+		userInfo = userInfoDao.get(UserInfo.class, userInfo.getId());
+		ackuserInfo = userInfoDao.get(UserInfo.class, ackuserInfo.getId());
+		userInfoDao.updateILoveVersion(userInfo);
+		userInfoDao.updateLoveMeVersion(userInfo);
+		userInfoDao.updateILoveVersion(ackuserInfo);
+		userInfoDao.updateLoveMeVersion(ackuserInfo);
+		myLoveDao.delete(myLove);
+		MyLove loveMe_e = myLoveDao.findByUseridAndAckUserid(
+				ackuserInfo.getId(), userInfo.getId());
+		myLoveDao.delete(loveMe_e);
+		pushMsg(userInfo, ackuserInfo);
+	}
+
+	private void pushMsg(UserInfo userInfo, UserInfo ackuserInfo) {
+		Long userId = userInfo.getId();
+		Long ackUserId = ackuserInfo.getId();
+		List<MyLove> loveMes = myLoveDao.findLoveMeAndRightGt(userId);
+		List<MyLove> ackLoveMes = myLoveDao.findLoveMeAndRightGt(ackUserId);
+		List<PushMessage> pushMessages = new ArrayList<PushMessage>();
+		String[] objects = new String[] { userId.toString() };
+		String[] ackobjects = new String[] { ackUserId.toString() };
+		String uuid = UUID.randomUUID().toString();
+		for (MyLove loveMeMylove : loveMes) {
+			Long recvuid = loveMeMylove.getUserInfoByUserid().getId();
+			PushMessage pushMessage = pushMessageDao.getPushMessage(
+					PushMessageTypeEnum.MSGID100_2, objects, recvuid, uuid);
+			pushMessages.add(pushMessage);
+		}
+		for (MyLove ackLoveMeMylove : ackLoveMes) {
+			Long recvuid = ackLoveMeMylove.getUserInfoByUserid().getId();
+			PushMessage pushMessage = pushMessageDao.getPushMessage(
+					PushMessageTypeEnum.MSGID100_3, ackobjects, recvuid, uuid);
+			pushMessages.add(pushMessage);
+		}
+		PushMessage mePushMessage = pushMessageDao.getPushMessage(
+				PushMessageTypeEnum.MSGID100_2, objects, userId, uuid);
+		PushMessage ackPushMessage = pushMessageDao.getPushMessage(
+				PushMessageTypeEnum.MSGID100_3, ackobjects, ackUserId, uuid);
+		pushMessages.add(mePushMessage);
+		pushMessages.add(ackPushMessage);
+		for (PushMessage pushMessage : pushMessages) {
+			pushMessageDao.start(pushMessage);
+		}
+	}
+
+	public MyLove findById(Long id) {
+		return myLoveDao.get(MyLove.class, id);
+	}
+
+	public MyLove findByUseridAndAckUserid(Long userid, Long ackuserid) {
+		return myLoveDao.findByUseridAndAckUserid(userid, ackuserid);
+	}
+
+	public List<MyLove> findILove(Long userid) {
+		return myLoveDao.findILove(userid);
+	}
+
+	public List<MyLove> findLoveMe(Long userid) {
+		return myLoveDao.findLoveMe(userid);
+	}
+
+	public Serializable create(MyLove myLove) {
+		Serializable serializable = myLoveDao.save(myLove);
+		UserInfo userInfo = myLove.getUserInfoByUserid();
+		UserInfo ackuserInfo = myLove.getUserInfoByAckuserid();
+		userInfoDao.updateILoveVersion(userInfo);
+		userInfoDao.updateLoveMeVersion(ackuserInfo);
+		String uuid = UUID.randomUUID().toString();
+		String[] objects = new String[] { userInfo.getId().toString(),
+				ackuserInfo.getId().toString(), userInfo.getName() };
+		PushMessage mePushMessage = pushMessageDao
+				.getPushMessage(PushMessageTypeEnum.MSGID25, objects,
+						ackuserInfo.getId(), uuid);
+		pushMessageDao.start(mePushMessage);
+		// 给微信对应的xmpp用户发送一个通知 zyb 2014、11、8
+		mePushMessage = pushMessageDao.getPushMessage(
+				PushMessageTypeEnum.MSGID25, objects, SERVER_USERNAME, uuid);
+		pushMessageDao.start(mePushMessage);
+		return serializable;
+	}
+
+}

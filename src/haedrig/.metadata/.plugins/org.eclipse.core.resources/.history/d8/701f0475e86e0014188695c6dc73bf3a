@@ -1,0 +1,190 @@
+package com.linkedlove.org.weixin;
+
+import java.io.IOException;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.linkedlove.m.member.xmpp.XmppChatManagerListener;
+
+@Component("weixinService")
+public class WeixinServiceImpl implements WeixinService {
+
+	public String getAccessToken(String appid, String appsecret) {
+		String res = null;
+		try {
+			res = WeixinHttp
+					.httpGet("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
+							+ appid + "&secret=" + appsecret + "");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		JSONObject jsonObject = JSONObject.fromObject(res);
+		String access_token = jsonObject.getString("access_token");
+		return access_token;
+	}
+
+	public String getMenu(String accessToken) {
+		String res = null;
+		try {
+			res = WeixinHttp
+					.httpGet("https://api.weixin.qq.com/cgi-bin/menu/get?access_token="
+							+ accessToken);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	public String createMenu(String accessToken, String menu) {
+		String ret = null;
+		try {
+			ret = WeixinHttp.httpPost(
+					" https://api.weixin.qq.com/cgi-bin/menu/create?access_token="
+							+ accessToken, menu);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public String delMenu(String accessToken) {
+		String res = null;
+		try {
+			res = WeixinHttp
+					.httpGet("https://api.weixin.qq.com/cgi-bin/menu/delete?access_token="
+							+ accessToken);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	public String sendMsg(String accessToken, WeixinMsg weixinMsg) {
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "weixinMsgType" });
+		JSONObject content = JSONObject.fromObject(weixinMsg, config);
+		System.out.println(content);
+		System.out.println(accessToken);
+		String ret = null;
+		try {
+			ret = WeixinHttp.httpPost(
+					" https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token="
+							+ accessToken, content.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(ret);
+		logger.info("模板信息：" + ret);
+		return ret;
+	}
+
+	@Value("${weixin.server.healthtree.path}")
+	private String healthtreePath;
+	@Value("${weixin.server.help.path}")
+	private String helpPath;
+	@Value("${weixin.server.app.path}")
+	private String appPath;
+	@Value("${weixin.server.store.path}")
+	private String storePath;
+
+	private static Logger logger = Logger
+			.getLogger(XmppChatManagerListener.class);
+
+	public String getMenu() {
+		JSONObject object = new JSONObject();
+		JSONArray button = new JSONArray();
+		// 扫描
+		JSONObject button1 = new JSONObject();
+		JSONArray jsarry1 = new JSONArray();
+
+		// 链爱蓝牙血压计
+		JSONObject button01 = new JSONObject();
+		button01.put("type", "scancode_waitmsg");
+		button01.put("name", "绑定账号");
+		button01.put("key", "rselfmenu_0_0");
+		jsarry1.add(button01);
+		// GPRS血压计
+		JSONObject button02 = new JSONObject();
+		button02.put("type", "scancode_waitmsg");
+		button02.put("name", "关爱家人");
+		button02.put("key", "rselfmenu_0_1");
+		jsarry1.add(button02);
+		// 扫描
+		button1.put("name", "扫描");
+		button1.put("sub_button", jsarry1);
+		button.add(button1);
+
+		// 健康管理
+		JSONObject button2 = new JSONObject();
+
+		// 健康管理
+		button2.put("name", "健康管理");
+		button2.put("type", "view");
+		button2.put("url", healthtreePath);
+		button.add(button2);
+
+		// 发现
+		JSONObject button3 = new JSONObject();
+		JSONArray jsarry3 = new JSONArray();
+		// 帮助
+		JSONObject button21 = new JSONObject();
+		button21.put("type", "view");
+		button21.put("name", "帮助");
+		button21.put("url", helpPath);
+		jsarry3.add(button21);
+		// app下载
+		JSONObject button22 = new JSONObject();
+		button22.put("type", "view");
+		button22.put("name", "app下载");
+		button22.put("url", appPath);
+		jsarry3.add(button22);
+		// 链爱商城
+		JSONObject button23 = new JSONObject();
+		button23.put("type", "view");
+		button23.put("name", "链爱商城");
+		button23.put("url", storePath);
+		jsarry3.add(button23);
+
+		// 发现
+		button3.put("name", "发现");
+		button3.put("sub_button", jsarry3);
+		button.add(button3);
+		object.put("button", button);
+		return object.toString();
+	}
+
+	@Override
+	public String getUserInfo(String accessToken, String openid) {
+		String res = null;
+		try {
+			res = WeixinHttp
+					.httpGet("https://api.weixin.qq.com/cgi-bin/user/info?openid="
+							+ openid
+							+ "&lang=zh_CN&access_token="
+							+ accessToken);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	@Override
+	public String sendTemplet(String accessToken, String message) {
+		String res = null;
+		try {
+			res = WeixinHttp.httpPost(
+					"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
+							+ accessToken, message);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		logger.info("模板信息：" + res);
+		return res;
+	}
+}

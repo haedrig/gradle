@@ -1,0 +1,50 @@
+package com.healthtree.dao.impl;
+
+import org.jivesoftware.smack.packet.Message;
+import org.springframework.stereotype.Repository;
+
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.util.xmpp.PushMessage;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Repository("pushMessageDao")
+public class PushMessageDaoImpl extends BaseDAOImpl<PushMessage> implements
+		PushMessageDao {
+
+	@Autowired
+	private XmppConnection xmppConnection;
+	
+	public PushMessage getPushMessage(PushMessageTypeEnum pushType,
+			String[] objs, Long recvuid, String uuid) {
+		String msgJson = pushType.getMsgJson();
+		for (int i = 0; i < objs.length; i++) {
+			msgJson = msgJson.replaceAll("#" + i, objs[i]);
+		}
+		PushMessage pushMessage = new PushMessage(recvuid, msgJson, uuid);
+		return pushMessage;
+	}
+
+	public void start(PushMessage o) {
+		pushMessageThread.send(o);
+	}
+
+	public boolean send(PushMessage pushMessage) {
+		try {
+			if (!pushMessage.getRecvuid().equals(1L)) {
+				Message message = new Message(pushMessage.getRecvuid()
+						+ "@linkedlove/jiukang", Type.normal);
+				message.setBody(pushMessage.getJson());
+				xmppConnection.getConnection().sendPacket(message);
+			} else {
+				Message message = new Message("all@broadcast.linkedlove",
+						Type.normal);
+				message.setBody(pushMessage.getJson());
+				xmppConnection.getConnection().sendPacket(message);
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

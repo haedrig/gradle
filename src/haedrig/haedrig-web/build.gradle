@@ -1,0 +1,26 @@
+apply plugin: 'war'
+
+dependencies {
+  compile project(':healthtree-api')
+  compile "org.springframework:spring-context:$springVersion"
+  compile "org.springframework:spring-web:$springVersion"
+  compile "javax.servlet:javax.servlet-api:$javaxServletApiVersion"
+  compile "log4j:log4j:1.2.17"
+}
+
+compileJava {
+  if (!System.properties['java.version'].contains('1.7')) {
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
+    options.bootClasspath = files(
+      new File(System.env.JAVA_HOME, 'jre/lib/rt.jar'), 
+      new File(System.env.JAVA_HOME, 'jre/lib/jce.jar')
+    ).asPath
+  }
+}
+
+repositories{  
+    mavenCentral()  
+}
+
+[compileJava,compileTestJava,javadoc]*.options*.encoding = "UTF-8"

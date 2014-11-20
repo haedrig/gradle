@@ -1,0 +1,151 @@
+package com.healthtree.service.impl;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.healthtree.dao.DeviceDao;
+import com.healthtree.dao.MyLoveDao;
+import com.healthtree.dao.PushMessageDao;
+import com.healthtree.dao.UserInfoDao;
+import com.healthtree.entity.Device;
+import com.healthtree.entity.MyLove;
+import com.healthtree.entity.UserInfo;
+import com.healthtree.service.DeviceService;
+import com.healthtree.util.Page;
+import com.healthtree.util.xmpp.PushMessageTypeEnum;
+
+@Service("deviceService")
+public class DeviceServiceImpl implements DeviceService {
+
+	@Autowired
+	private DeviceDao deviceDao;
+	@Autowired
+	private MyLoveDao myLoveDao;
+	@Autowired
+	private UserInfoDao userInfoDao;
+	@Autowired
+	private PushMessageDao pushMessageDao;
+
+	public void remove(Long id) {
+		Device device = deviceDao.findById(id);
+		deviceDao.delete(device);
+		UserInfo userInfo = device.getUserInfo();
+		if (userInfo != null)
+			userInfoDao.updateDeviceVersion(userInfo);
+	}
+
+	public Serializable create(Device device) {
+		return deviceDao.save(device);
+	}
+
+	public void editDeviceInfo(Device device) {
+		deviceDao.update(device);
+		UserInfo userInfo = device.getUserInfo();
+		if (userInfo != null)
+			userInfoDao.updateDeviceVersion(userInfo);
+	}
+
+	public void edit(Device device) {
+		deviceDao.update(device);
+		UserInfo userInfo = device.getUserInfo();
+		if (userInfo != null) {
+			userInfoDao.updateDeviceVersion(userInfo);
+			Long userId = userInfo.getId();
+			List<MyLove> loveMes = myLoveDao.findLoveMeAndRightGt(userId);
+			List<PushMessage> pushMessages = new ArrayList<PushMessage>();
+			String[] objects = new String[] { userId.toString() };
+			String uuid = UUID.randomUUID().toString();
+			for (MyLove myLove : loveMes) {
+				Long recvuid = myLove.getUserInfoByUserid().getId();
+				PushMessage pushMessage = pushMessageDao.getPushMessage(
+						PushMessageTypeEnum.MSGID100_4, objects, recvuid, uuid);
+				pushMessages.add(pushMessage);
+			}
+			PushMessage mePushMessage = pushMessageDao.getPushMessage(
+					PushMessageTypeEnum.MSGID100_4, objects, userId, uuid);
+			pushMessages.add(mePushMessage);
+			for (PushMessage pushMessage : pushMessages) {
+				pushMessageDao.start(pushMessage);
+			}
+		}
+	}
+
+	public Page findAll(Integer pageNum, Integer pageSize) {
+		return deviceDao.findAll(pageNum, pageSize);
+	}
+
+	public Page findAll(String telnum, String name, String deviceName,
+			Long resellerId, Integer pageNum, Integer pageSize) {
+		return deviceDao.findAll(telnum, name, deviceName, resellerId, pageNum,
+				pageSize);
+	}
+
+	public Device findById(Long id) {
+		return deviceDao.get(Device.class, id);
+	}
+
+	public Page findDeletedAll(Integer pageNum, Integer pageSize) {
+		return deviceDao.findDeletedAll(pageNum, pageSize);
+	}
+
+	public Device findByImei(String imei) {
+		return deviceDao.findByImei(imei);
+	}
+
+	public List<Device> findByUserId(Long userid) {
+		return deviceDao.findByUserId(userid);
+	}
+
+	public Device findByUserIdAndImei(Long userid, String imei) {
+		return deviceDao.findByUserIdAndImei(userid, imei);
+	}
+
+	public Device findByTelnum(String telnum) {
+		return deviceDao.findByTelnum(telnum);
+	}
+
+	public void create(List<Device> arg0) {
+		for (Device device : arg0) {
+			deviceDao.save(device);
+		}
+	}
+
+	public void edit(List<Device> arg0) {
+		for (Device device : arg0) {
+			deviceDao.update(device);
+		}
+	}
+
+	public void editDeviceStatus(List<Device> arg0, Integer arg1) {
+		for (Device device : arg0) {
+			device.setStatus(arg1);
+			deviceDao.update(device);
+		}
+	}
+
+	public List<Device> findBySimId(Long simId) {
+		return deviceDao.findBySimId(simId);
+	}
+
+	public Device findByIccidAndUser(String iccid, Integer user) {
+		return deviceDao.findByIccidAndUser(iccid, user);
+	}
+
+	public List<Device> findByDeviceCatId(Long arg0) {
+		return deviceDao.findByDeviceCatId(arg0);
+	}
+
+	public List<Device> findByDeviceTypeId(Long deviceTypeId) {
+		return deviceDao.findByDeviceTypeId(deviceTypeId);
+	}
+
+	public void editDeviceDelUser(Device device) {
+		deviceDao.update(device);
+	}
+
+}

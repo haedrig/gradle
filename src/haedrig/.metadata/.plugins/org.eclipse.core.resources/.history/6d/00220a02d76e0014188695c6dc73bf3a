@@ -1,0 +1,59 @@
+
+master.jdbc.driverClassName=com.mysql.jdbc.Driver
+#=====================================================================================
+master.jdbc.url=jdbc:mysql://192.168.18.50:3306/healthtree?useUnicode=true&characterEncoding=utf8
+master.jdbc.username=root
+master.jdbc.password=qazwsx123
+#=====================================================================================
+#master.jdbc.url=jdbc:mysql://rdsn3i7bzavynbu.mysql.rds.aliyuncs.com:3306/healthtree?useUnicode=true&characterEncoding=utf8
+#master.jdbc.username=dbg52x81m0x04e49
+#master.jdbc.password=J1xeuSLZUgNdQupIB1wWXovPu4Ld2Y
+#=====================================================================================
+#master.jdbc.url=jdbc:mysql://42.121.97.148:3306/healthtree?useUnicode=true&characterEncoding=utf8
+#master.jdbc.username=root
+#master.jdbc.password=linkedlove123
+
+slave.jdbc.driverClassName=com.mysql.jdbc.Driver
+#=====================================================================================
+#slave.jdbc.url=jdbc:mysql://192.168.18.50:3306/healthtree?useUnicode=true&characterEncoding=utf8
+#slave.jdbc.username=root
+#slave.jdbc.password=qazwsx123
+#=====================================================================================
+#slave.jdbc.url=jdbc:mysql://rdsn3i7bzavynbu.mysql.rds.aliyuncs.com:3306/healthtree?useUnicode=true&characterEncoding=utf8
+#slave.jdbc.username=dbg52x81m0x04e49
+#slave.jdbc.password=J1xeuSLZUgNdQupIB1wWXovPu4Ld2Y
+#=====================================================================================
+slave.jdbc.url=jdbc:mysql://42.121.97.148:3306/healthtree?useUnicode=true&characterEncoding=utf8
+slave.jdbc.username=root
+slave.jdbc.password=linkedlove123
+
+# hibernate.X
+hibernate.connection.driverClass=org.gjt.mm.mysql.Driver
+hibernate.connection.url=jdbc:mysql:// yourServerIP:3306/yourDatabase
+hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+hibernate.connection.username=user
+hibernate.connection.password=password
+hibernate.show_sql=true
+rmi.port=8288
+
+# xmpp
+xmpp.server_port=5222
+#xmpp.server_host=192.168.18.50
+#xmpp.server_host=115.28.227.94
+xmpp.server_host=42.121.97.148
+xmpp.server_name=linkedlove
+xmpp.server_username=1
+xmpp.server_password=ddzj@12345
+xmpp.server_space=jiukang
+
+#weixin xmpp user id
+xmpp.weixin_username=3
+
+#sms config
+sms.app_id=124688320000034962
+sms.app_secret=30481a724b2b20c0e27992855c0ee48e
+
+#oss
+oss.accessKeyId=RBnFeBdesQDtDAQN
+oss.accessKeySecret=zPCXccdSOirk4Oesqq225L4SE0LaOt
+oss.endpoint=http://oss.aliyuncs.com
