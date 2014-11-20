@@ -14,4 +14,11 @@ jdk环境变量
 执行src/haedrig/scripts/init.bat等执行完毕后执行eclipse.bat项目自动build完成
 <p>
 并且自动启动eclipse和导入src\haedrig下haedrig-api，haedrig-java,haedrig-web和下载所有jar包
-
+<p>
+src\haedrig\haedrig-web\scripts下
+<p>
+gradle-build.bat 打包项目
+<p>
+gradle-eclipse.bat 打包并把jar导入eclipse
+<p>
+gradle-jettyRun.bat 使用jetty运行项目
